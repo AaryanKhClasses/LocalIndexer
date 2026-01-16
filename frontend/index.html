@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Local Indexer - Frontend</title>
+</head>
+<body>
+    <div id="app">
+        <div>
+            <h1>Local Indexer</h1><hr>
+            <h2>Index Sources</h2>
+            <div class="flex-col">
+                <div class="flex-row">
+                    <input id="source-path" placeholder="Enter Directory Path..." />
+                    <div class="flex-row"><label><input type="checkbox" id="recursive" /> Include Subdirectories</label></div>
+                </div>
+                <button id="add-source">Add Source</button>
+            </div>
+            <div id="sources"></div>
+            <hr />
+
+            <h2>Search</h2>
+            <input id="search" placeholder="Type to search..." />
+            <button id="refresh">Refresh</button>
+            <div id="results"></div>
+        </div>
+    </div>
+    <script type="module" src="./src/main.ts"></script>
+</body>
+</html>
