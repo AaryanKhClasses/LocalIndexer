@@ -3,7 +3,6 @@ use rusqlite::{Connection, Result};
 use tauri::{AppHandle, Manager};
 
 pub mod queries;
-pub mod index_sources;
 
 pub fn open_db(app: &AppHandle) -> Result<Connection> {
     let dir = app.path().app_data_dir().map_err(|e| rusqlite::Error::ToSqlConversionFailure(Box::new(e)))?;

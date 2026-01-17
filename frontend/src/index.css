@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+:root {
+    --color-theme-50: #fde8ea;
+    --color-theme-100: #fad1d4;
+    --color-theme-200: #f6a2a9;
+    --color-theme-300: #f1747e;
+    --color-theme-400: #ed4553;
+    --color-theme-500: #e81728;
+    --color-theme-600: #ba1220;
+    --color-theme-700: #8b0e18;
+    --color-theme-800: #5d0910;
+    --color-theme-900: #2e0508;
+    --color-theme-950: #200306;
+
+    /* Secondary Theme: */
+/*
+    --color-theme-50: #ebfaf5;
+    --color-theme-100: #d6f5eb;
+    --color-theme-200: #aeead7;
+    --color-theme-300: #85e0c3;
+    --color-theme-400: #5dd5af;
+    --color-theme-500: #34cb9b;
+    --color-theme-600: #2aa27c;
+    --color-theme-700: #1f7a5d;
+    --color-theme-800: #15513e;
+    --color-theme-900: #0a291f;
+    --color-theme-950: #071c16;
+*/
+}
+
+@theme inline {
+    --color-theme-50: var(--color-theme-50);
+    --color-theme-100: var(--color-theme-100);
+    --color-theme-200: var(--color-theme-200);
+    --color-theme-300: var(--color-theme-300);
+    --color-theme-400: var(--color-theme-400);
+    --color-theme-500: var(--color-theme-500);
+    --color-theme-600: var(--color-theme-600);
+    --color-theme-700: var(--color-theme-700);
+    --color-theme-800: var(--color-theme-800);
+    --color-theme-900: var(--color-theme-900);
+    --color-theme-950: var(--color-theme-950);
+}
+
+html::-webkit-scrollbar {
+    display: none;
+}

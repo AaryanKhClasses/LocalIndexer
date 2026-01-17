@@ -6,24 +6,21 @@
     <title>Local Indexer - Frontend</title>
 </head>
 <body>
-    <div id="app">
-        <div>
-            <h1>Local Indexer</h1><hr>
-            <h2>Index Sources</h2>
-            <div class="flex-col">
-                <div class="flex-row">
-                    <input id="source-path" placeholder="Enter Directory Path..." />
-                    <div class="flex-row"><label><input type="checkbox" id="recursive" /> Include Subdirectories</label></div>
-                </div>
-                <button id="add-source">Add Source</button>
+    <div id="app" class="selection:bg-theme-100 flex flex-col gap-4 p-7 min-h-screen text-theme-900">
+        <h1 class="text-4xl text-center font-semibold pb-2">Local Indexer</h1>
+        <div class="border p-4 border-[#cccccc] shadow rounded-xl">
+            <h2 class="text-2xl pb-2">Index Sources:</h2>
+            <div class="flex flex-col gap-1.5 pb-2">
+                <input aria-autocomplete="none" id="source-path" placeholder="Enter Directory Path..." class="w-full bg-theme-300 text-white p-2 rounded-lg" />
+                <button id="add-source" class="w-full bg-theme-600 py-1.5 rounded-lg text-white font-semibold cursor-pointer">Add Source</button>
             </div>
-            <div id="sources"></div>
-            <hr />
-
-            <h2>Search</h2>
-            <input id="search" placeholder="Type to search..." />
-            <button id="refresh">Refresh</button>
-            <div id="results"></div>
+        </div>
+        <hr />
+        <div class="border p-4 border-[#cccccc] shadow rounded-xl">
+            <h2 class="text-2xl pb-2">Search</h2>
+            <input id="search" placeholder="Type to search..." class="w-full bg-theme-300 text-white p-2 my-2 rounded-lg" />
+            <button id="refresh" class="w-full bg-theme-600 py-1.5 rounded-lg text-white font-semibold">Refresh</button>
+            <div id="results" class="my-4 space-y-1"></div>
         </div>
     </div>
     <script type="module" src="./src/main.ts"></script>
