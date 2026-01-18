@@ -2,5 +2,6 @@ CREATE TABLE IF NOT EXISTS folders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     folder_type TEXT NOT NULL,
-    path TEXT NOT NULL UNIQUE
+    path TEXT NOT NULL UNIQUE,
+    folder_type_locked INTEGER NOT NULL DEFAULT 0
 );

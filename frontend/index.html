@@ -11,7 +11,10 @@
         <div class="border p-4 border-[#cccccc] shadow rounded-xl">
             <h2 class="text-2xl pb-2">Index Sources:</h2>
             <div class="flex flex-col gap-1.5 pb-2">
-                <input aria-autocomplete="none" id="source-path" placeholder="Enter Directory Path..." class="w-full bg-theme-300 text-white p-2 rounded-lg" />
+                <div class="flex flex-row">
+                    <input aria-autocomplete="none" id="source-path" placeholder="Enter Directory Path..." class="w-full bg-theme-300 text-white p-2 rounded-lg" />
+                    <button id="browse-source" class="ml-2 bg-theme-600 px-4 py-2 rounded-lg text-white font-semibold cursor-pointer">Browse</button>
+                </div>
                 <button id="add-source" class="w-full bg-theme-600 py-1.5 rounded-lg text-white font-semibold cursor-pointer">Add Source</button>
             </div>
         </div>
@@ -19,9 +22,10 @@
         <div class="border p-4 border-[#cccccc] shadow rounded-xl">
             <h2 class="text-2xl pb-2">Search</h2>
             <input id="search" placeholder="Type to search..." class="w-full bg-theme-300 text-white p-2 my-2 rounded-lg" />
-            <button id="refresh" class="w-full bg-theme-600 py-1.5 rounded-lg text-white font-semibold">Refresh</button>
+            <button id="refresh" class="w-full bg-theme-600 py-1.5 rounded-lg text-white font-semibold cursor-pointer">Refresh</button>
             <div id="results" class="my-4 space-y-1"></div>
         </div>
+        <div id="folder-type-picker" class="hidden fixed z-50 bg-theme-100 border border-theme-600 rounded-xl p-2 shadow-xl"></div>
     </div>
     <script type="module" src="./src/main.ts"></script>
 </body>

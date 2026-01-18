@@ -1,5 +1,9 @@
 use std::path::Path;
 
+use rusqlite::Connection;
+
+use crate::db::queries::{FolderRow, update_folder_type};
+
 #[derive(Debug)]
 pub enum FolderType {
     NextJS,
@@ -75,4 +79,17 @@ pub fn detect_folder_type(path: &Path) -> FolderType {
     { return FolderType::Typescript; }
 
     FolderType::Unknown
+}
+
+pub fn redetect_folder_types(conn: &Connection, folders: &[FolderRow]) -> rusqlite::Result<()> {
+    for folder in folders {
+        if folder.folder_type_locked { continue; }
+        let path = Path::new(&folder.path);
+        if !path.exists() { continue; }
+        let detected_type = detect_folder_type(path).as_str();
+        if detected_type != folder.folder_type {
+            update_folder_type(conn, folder.id, detected_type)?;
+        }
+    }
+    Ok(())
 }
