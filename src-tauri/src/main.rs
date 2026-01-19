@@ -6,7 +6,6 @@ mod actions;
 mod folder_type;
 
 use std::path::PathBuf;
-
 use crate::{actions::dispatch::execute_action, db::{open_db, queries::{FolderRow, list_folders}}, folder_type::{detect_folder_type, redetect_folder_types}};
 
 #[tauri::command]
@@ -56,6 +55,7 @@ fn remove_folder(app: tauri::AppHandle, id: i64) -> Result<(), String> {
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![ping, run_action, get_folders, add_folder, override_folder_type, unlock_folder_type, remove_folder])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

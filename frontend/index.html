@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Local Indexer - Frontend</title>
 </head>
-<body>
+<body class="bg-bg">
     <div id="app" class="selection:bg-theme-100 flex flex-col gap-4 p-7 min-h-screen text-theme-900">
-        <h1 class="text-4xl text-center font-semibold pb-2">Local Indexer</h1>
+        <header class="flex items-center justify-between">
+            <h1 class="text-4xl font-semibold">Local Indexer</h1>
+            <div class="flex items-center gap-2">
+                <img id="theme-toggle" src="sun.svg" alt="Toggle theme" class="w-8 h-8 cursor-pointer" />
+            </div>
+        </header>
         <div class="border p-4 border-[#cccccc] shadow rounded-xl">
             <h2 class="text-2xl pb-2">Index Sources:</h2>
             <div class="flex flex-col gap-1.5 pb-2">
@@ -20,8 +25,13 @@
         </div>
         <hr />
         <div class="border p-4 border-[#cccccc] shadow rounded-xl">
-            <h2 class="text-2xl pb-2">Search</h2>
-            <input id="search" placeholder="Type to search..." class="w-full bg-theme-300 text-white p-2 my-2 rounded-lg" />
+            <h2 class="text-2xl pb-2">Search:</h2>
+            <div class="flex flex-row items-center gap-2">
+                <input id="search" aria-autocomplete="none" placeholder="Type to search..." class="w-full bg-theme-300 text-white p-2 my-2 rounded-lg" />
+                <div id="filter-type">
+                    <img src="folder_type/unknown.svg" alt="Filter Type" class="w-10 cursor-pointer" />
+                </div>
+            </div>
             <button id="refresh" class="w-full bg-theme-600 py-1.5 rounded-lg text-white font-semibold cursor-pointer">Refresh</button>
             <div id="results" class="my-4 space-y-1"></div>
         </div>

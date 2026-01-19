@@ -1,7 +1,5 @@
 use std::path::Path;
-
 use rusqlite::Connection;
-
 use crate::db::queries::{FolderRow, update_folder_type};
 
 #[derive(Debug)]
@@ -42,7 +40,7 @@ pub fn detect_folder_type(path: &Path) -> FolderType {
         || path.join("next.config.ts").exists()        
     { return FolderType::NextJS; }
 
-    if (path.join("pubspec.yaml").exists()
+    if(path.join("pubspec.yaml").exists()
         || path.join("pubspec.lock").exists())
         && path.join("lib").exists()
     { return FolderType::Flutter; }
