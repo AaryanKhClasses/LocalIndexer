@@ -1,0 +1,124 @@
+{
+    "version": "1",
+    "types": [
+        {
+            "id": "next",
+            "label": "Next.JS",
+            "icon": "next.svg",
+            "detect": {
+                "any": [
+                    ".next", "next.config.js", "next.config.mjs", "next.config.ts"
+                ]
+            }
+        },
+        {
+            "id": "flutter",
+            "label": "Flutter",
+            "icon": "flutter.svg",
+            "detect": {
+                "all": [
+                    "pubspec.yaml", "lib"
+                ]
+            }
+        },
+        {
+            "id": "react-native",
+            "label": "React Native",
+            "icon": "react-native.svg",
+            "detect": {
+                "all": [
+                    "package.json", "node_modules/react-native"
+                ]
+            }
+        },
+        {
+            "id": "react",
+            "label": "React",
+            "icon": "react.svg",
+            "detect": {
+                "all": [
+                    "package.json", "node_modules/react"
+                ]
+            }
+        },
+        {
+            "id": "minecraft",
+            "label": "Minecraft Mod",
+            "icon": "minecraft.svg",
+            "detect": {
+                "any": [
+                    "mods.toml", "src/main/resources/fabric.mod.json", "META-INF/mods.toml"
+                ]
+            }
+        },
+        {
+            "id": "kotlin",
+            "label": "Kotlin",
+            "icon": "kotlin.svg",
+            "detect": {
+                "any": [
+                    "build.gradle.kts", "settings.gradle.kts"
+                ]
+            }
+        },
+        {
+            "id": "chrome",
+            "label": "Chrome Extension",
+            "icon": "chrome.svg",
+            "detect": {
+                "all": [
+                    "public/manifest.json"
+                ],
+                "any": [
+                    "src/background.ts", "src/background.js", "background.ts", "background.js"
+                ]
+            }
+        },
+        {
+            "id": "c++",
+            "label": "C++",
+            "icon": "cpp.svg",
+            "detect": {
+                "any": [
+                    "CMakeLists.txt", "Makefile", "*.cpp", "*.h"
+                ]
+            }
+        },
+        {
+            "id": "python",
+            "label": "Python",
+            "icon": "python.svg",
+            "detect": {
+                "any": [
+                    "requirements.txt", "*.py"
+                ]
+            }
+        },
+        {
+            "id": "tauri",
+            "label": "Tauri",
+            "icon": "tauri.svg",
+            "detect": {
+                "all": [
+                    "src-tauri/tauri.conf.json", "src-tauri/Cargo.toml"
+                ]
+            }
+        },
+        {
+            "id": "typescript",
+            "label": "TypeScript",
+            "icon": "typescript.svg",
+            "detect": {
+                "any": [
+                    "tsconfig.json", "*.ts", "*.tsx"
+                ]
+            }
+        },
+        {
+            "id": "unknown",
+            "label": "Unknown",
+            "icon": "unknown.svg",
+            "detect": {}
+        }
+    ]
+}

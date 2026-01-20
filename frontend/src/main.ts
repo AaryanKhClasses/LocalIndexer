@@ -2,10 +2,7 @@ import { open } from '@tauri-apps/plugin-dialog'
 import { invoke } from '@tauri-apps/api/core'
 import type { Folder } from '../types'
 import './index.css'
-
-const FOLDER_TYPES = [
-    'chrome', 'cpp', 'flutter', 'kotlin', 'minecraft', 'next', 'python', 'react-native', 'typescript', 'unknown'
-]
+import { getFolderType, getFolderTypes, loadFolderTypes } from './folderTypes'
 
 let activeFilter: string | null = null
 
@@ -103,10 +100,13 @@ async function loadFolders() {
     const list = document.getElementById('results')!
 
     let html = folders.map(folder => {
+        const type = getFolderType(folder.folder_type) ?? getFolderType('unknown')
+        const icon = type?.icon || 'unknown.svg'
+        const label = type?.label || 'unknown'
         return `
         <div class="flex flex-row bg-theme-100 rounded-xl border border-theme-600 items-center justify-between p-2">
             <div class="flex flex-row">
-                <img src="folder_type/${folder.folder_type || 'unknown'}.svg" alt="${folder.folder_type || 'unknown'} folder" width="48" class="mr-4 cursor-pointer folder-type-icon" data-id="${folder.id}" data-current="${folder.folder_type || 'unknown'}" />
+                <img src="folder_type/${icon}" alt="${label} folder" width="48" class="mr-4 cursor-pointer folder-type-icon" data-id="${folder.id}" data-current="${folder.folder_type}" />
                 <div class="flex flex-col">
                     <h1 class="text-xl font-bold">${folder.name} ${folder.folder_type_locked ? `<span class="mr-2 lock-icon cursor-pointer" data-id="${folder.id}" title="Unlock folder type">🔒</span>` : ''}</h1>
                     <h2 class="text-md font-normal line-clamp-1">${folder.path}</h2>
@@ -124,9 +124,6 @@ async function loadFolders() {
     list.innerHTML = html
     if(activeFilter) applyFilter(activeFilter)
 }
-
-document.getElementById('refresh')!.onclick = loadFolders
-loadFolders()
 
 const filterContainer = document.getElementById('filter-type')
 if(filterContainer) {
@@ -156,11 +153,12 @@ if(filterContainer) {
 
 function renderFolderTypePicker(folderId: number | 'filter', currentType: string) {
     const picker = document.getElementById('folder-type-picker')!
+    const types = getFolderTypes()
 
     picker.innerHTML = `
         <div class="grid grid-cols-4 gap-2">
-            ${FOLDER_TYPES.map(type => `
-                <img src="folder_type/${type}.svg" title="${type}" data-id="${folderId === 'filter' ? 'filter' : folderId}" data-type="${type}" width="48" class="folder-type-option cursor-pointer rounded-lg ${type === currentType ? 'ring-2 ring-blue-500' : 'hover:bg-theme-200'}" />
+            ${types.map(type => `
+                <img src="folder_type/${type.icon}" title="${type.label}" data-id="${folderId === 'filter' ? 'filter' : folderId}" data-type="${type.id}" width="48" class="folder-type-option cursor-pointer rounded-lg ${type.id === currentType ? 'ring-2 ring-blue-500' : 'hover:bg-theme-200'}" />
             `).join('')}
         </div>
     `
@@ -179,7 +177,10 @@ function applyFilter(type: string | null) {
         else folder.classList.add('hidden')
     }
     const filterImg = document.querySelector('#filter-type img') as HTMLImageElement | null
-    if(filterImg) filterImg.src = `folder_type/${activeFilter || 'unknown'}.svg`
+    if(filterImg) {
+        const ft = activeFilter ? getFolderType(activeFilter) : null
+        filterImg.src = `folder_type/${ft?.icon ?? 'unknown.svg'}`
+    }
 }
 
 function closeFolderTypePicker() {
@@ -223,3 +224,10 @@ document.getElementById('search')!.oninput = (e) => {
         else folder.classList.add('hidden')
     }
 }
+
+document.getElementById('refresh')!.onclick = loadFolders
+async function main() {
+    await loadFolderTypes()
+    await loadFolders()
+}
+main()

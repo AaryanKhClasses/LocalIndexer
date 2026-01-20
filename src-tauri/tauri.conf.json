@@ -2,9 +2,9 @@
     "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
     "productName": "LocalIndexer",
     "version": "0.1.0",
-    "identifier": "com.tauri.dev",
+    "identifier": "com.aaryankh.localindexer",
     "build": {
-        "frontendDist": "frontend",
+        "frontendDist": "../frontend/dist",
         "devUrl": "http://localhost:5173",
         "beforeDevCommand": "npm run dev --prefix frontend",
         "beforeBuildCommand": "npm run build --prefix frontend"
@@ -32,6 +32,9 @@
             "icons/128x128@2x.png",
             "icons/icon.icns",
             "icons/icon.ico"
+        ],
+        "resources": [
+            "config.json"
         ]
     }
 }

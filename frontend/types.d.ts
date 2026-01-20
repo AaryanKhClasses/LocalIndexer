@@ -5,3 +5,9 @@ export type Folder = {
     path: string,
     folder_type_locked: boolean
 }
+
+export type FolderTypeConfig = {
+    id: string
+    label: string
+    icon: string
+}
