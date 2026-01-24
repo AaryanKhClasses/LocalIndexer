@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS folders (
     name TEXT NOT NULL,
     folder_type TEXT NOT NULL,
     path TEXT NOT NULL UNIQUE,
-    folder_type_locked INTEGER NOT NULL DEFAULT 0
+    folder_type_locked INTEGER NOT NULL DEFAULT 0,
+    apps TEXT NOT NULL DEFAULT '[]'
 );

@@ -1,4 +1,5 @@
 use rusqlite::Connection;
+use serde_json::{from_str, to_string};
 
 #[derive(serde::Serialize)]
 pub struct FolderRow {
@@ -7,20 +8,25 @@ pub struct FolderRow {
     pub folder_type: String,
     pub path: String,
     pub folder_type_locked: bool,
+    pub apps: Vec<String>
 }
 
 pub fn list_folders(conn: &Connection) -> rusqlite::Result<Vec<FolderRow>> {
     let mut statement = conn.prepare(
-        "SELECT id, name, folder_type, path, folder_type_locked FROM folders ORDER BY id DESC"
+        "SELECT id, name, folder_type, path, folder_type_locked, apps FROM folders ORDER BY id DESC"
     )?;
 
     let rows = statement.query_map([], |row| {
+        let apps_json: String = row.get("apps")?;
+        let apps = from_str(&apps_json).unwrap_or_default();
+
         Ok(FolderRow {
             id: row.get(0)?,
             name: row.get(1)?,
             folder_type: row.get(2)?,
             path: row.get(3)?,
-            folder_type_locked: row.get::<_ , i64>(4)? == 1
+            folder_type_locked: row.get::<_ , i64>(4)? == 1,
+            apps: apps
         })
     })?.collect::<Result<Vec<_>, _>>()?;
 
@@ -47,6 +53,16 @@ pub fn update_folder_type(conn: &Connection, id: i64, folder_type: &str) -> rusq
     conn.execute(
         "UPDATE folders SET folder_type = ?1 WHERE id = ?2",
         rusqlite::params![folder_type, id],
+    )?;
+    Ok(())
+}
+
+pub fn update_folder_apps(conn: &Connection, id: i64, apps: &[String]) -> rusqlite::Result<()> {
+    let apps_json = to_string(apps).unwrap_or_else(|_| "[]".to_string());
+
+    conn.execute(
+        "UPDATE folders SET apps = ?1 WHERE id = ?2",
+        rusqlite::params![apps_json, id],
     )?;
     Ok(())
 }

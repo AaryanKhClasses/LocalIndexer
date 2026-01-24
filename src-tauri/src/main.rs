@@ -7,7 +7,7 @@ mod folder_type;
 mod config;
 
 use std::path::PathBuf;
-use crate::{actions::dispatch::execute_action, config::{folder_types::FolderTypePublic, load_config}, db::{open_db, queries::{FolderRow, list_folders}}, folder_type::{detect_folder_type, redetect_folder_types}};
+use crate::{actions::dispatch::execute_action, config::{folder_types::{AppPublic, FolderTypePublic}, load_config}, db::{open_db, queries::{FolderRow, list_folders}}, folder_type::{detect_folder_type, redetect_folder_types}};
 
 #[tauri::command]
 fn ping() -> String {
@@ -15,9 +15,13 @@ fn ping() -> String {
 }
 
 #[tauri::command]
-fn run_action(action_id: String, path: String) -> Result<(), String> {
-    let target = path.into();
-    execute_action(&action_id, &target)
+fn run_action(app: tauri::AppHandle, action_id: String, path: String) -> Result<(), String> {
+    let target = PathBuf::from(&path);
+    let config = load_config(&app);
+    let app_config = config.apps.iter().find(|a| a.id == action_id)
+        .ok_or_else(|| format!("Unknown app id: {action_id}"))?;
+
+    execute_action(app_config, &target)
 }
 
 #[tauri::command]
@@ -50,6 +54,12 @@ fn unlock_folder_type(app: tauri::AppHandle, id: i64) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn update_folder_apps(app: tauri::AppHandle, id: i64, apps: Vec<String>) -> Result<(), String> {
+    let conn = db::open_db(&app).map_err(|e| e.to_string())?;
+    db::queries::update_folder_apps(&conn, id, &apps).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 fn remove_folder(app: tauri::AppHandle, id: i64) -> Result<(), String> {
     let conn = db::open_db(&app).map_err(|e| e.to_string())?;
     db::queries::remove_folder(&conn, id).map_err(|e| e.to_string())
@@ -60,10 +70,15 @@ fn get_folder_type_config(app: tauri::AppHandle) -> Vec<FolderTypePublic> {
     load_config(&app).types.iter().map(|t| t.to_public()).collect()
 }
 
+#[tauri::command]
+fn get_app_config(app: tauri::AppHandle) -> Vec<AppPublic> {
+    load_config(&app).apps.iter().map(|a| a.to_public()).collect()
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![ping, run_action, get_folders, add_folder, override_folder_type, unlock_folder_type, remove_folder, get_folder_type_config])
+        .invoke_handler(tauri::generate_handler![ping, run_action, get_folders, add_folder, override_folder_type, unlock_folder_type, update_folder_apps, remove_folder, get_folder_type_config, get_app_config])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

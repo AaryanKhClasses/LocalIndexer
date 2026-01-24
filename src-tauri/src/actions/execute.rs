@@ -1,11 +1,18 @@
 use std::{path::Path, process::Command};
 
-pub fn open_vscode(path: &Path) -> Result<(), String> {
-    Command::new("cmd").args(["/C", "code-insiders"]).arg(path).spawn().map_err(|e| e.to_string())?;
-    Ok(())
-}
+pub fn run_app_command(command: &str, path: &Path) -> Result<(), String> {
+    let path_str = path.to_string_lossy();
 
-pub fn open_explorer(path: &Path) -> Result<(), String> {
-    Command::new("explorer").arg(path).spawn().map_err(|e| e.to_string())?;
+    let constructed = if command.contains("{path}") {
+        command.replace("{path}", &path_str)
+    } else {
+        format!("{} \"{}\"", command, path_str)
+    };
+
+    Command::new("cmd")
+        .args(["/C", &constructed])
+        .spawn()
+        .map_err(|e| e.to_string())?;
+
     Ok(())
 }

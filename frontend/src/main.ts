@@ -2,9 +2,11 @@ import { open } from '@tauri-apps/plugin-dialog'
 import { invoke } from '@tauri-apps/api/core'
 import type { Folder } from '../types'
 import './index.css'
+import { getApp, getApps, loadApps } from './apps'
 import { getFolderType, getFolderTypes, loadFolderTypes } from './folderTypes'
 
 let activeFilter: string | null = null
+let currentFolders: Folder[] = []
 
 const THEME_KEY = 'theme'
 
@@ -36,6 +38,24 @@ window.addEventListener('load', () => {
 document.addEventListener('click', async(e) => {
     const target = e.target as HTMLElement
 
+    if(target.closest('#folder-apps-picker')) {
+        if(target.classList.contains('save-apps')) {
+            const folderId = Number(target.getAttribute('data-folder-id'))
+            if(!folderId) return
+
+            const picker = document.getElementById('folder-apps-picker')!
+            const checkboxes = picker.querySelectorAll<HTMLInputElement>('input[data-app-id]')
+            const apps = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.getAttribute('data-app-id')!).filter(Boolean)
+
+            await invoke('update_folder_apps', { id: folderId, apps })
+            closeAppPicker()
+            return loadFolders()
+        }
+
+        if(target.classList.contains('close-app-picker')) closeAppPicker()
+        return
+    }
+
     if(target.classList.contains('folder-type-option')) {
         const idAttr = target.getAttribute('data-id')
         const type = target.getAttribute('data-type')
@@ -62,14 +82,15 @@ document.addEventListener('click', async(e) => {
         renderFolderTypePicker(id, current)
         const rect = target.getBoundingClientRect()
         const pickerHeight = picker.offsetHeight
-        const spaceBelow = window.innerHeight - rect.bottom
-        if(spaceBelow < pickerHeight + 5) picker.style.top = `${rect.top + window.scrollY - pickerHeight - 5}px`
-        else picker.style.top = `${rect.bottom + window.scrollY + 5}px`
-
         const pickerWidth = picker.offsetWidth
-        let left = rect.left + window.scrollX
+        
+        const spaceBelow = window.innerHeight - rect.bottom
+        if(spaceBelow < pickerHeight + 5) picker.style.top = `${rect.top - pickerHeight - 5}px`
+        else picker.style.top = `${rect.bottom + 5}px`
+
+        let left = rect.left
         if(rect.left + pickerWidth > window.innerWidth - 5) {
-            left = Math.max(5, rect.right + window.scrollX - pickerWidth)
+            left = Math.max(5, rect.right - pickerWidth)
         }
         picker.style.left = `${left}px`
         return e.stopPropagation()
@@ -85,24 +106,36 @@ document.addEventListener('click', async(e) => {
         if(!id) return
         await invoke('remove_folder', { id: Number(id) })
         loadFolders()
-    } else {
+    }
+    else if(target.classList.contains('open-settings')) {
+        const id = Number(target.getAttribute('data-id'))
+        const folder = currentFolders.find(f => f.id === id)
+        if(!folder) return
+        renderAppPicker(folder, target)
+        return e.stopPropagation()
+    }
+    else if(target.classList.contains('app-action')) {
         const actionId = target.getAttribute('data-action')
         const path = target.getAttribute('data-path')
-        if(!actionId || !path) return closeFolderTypePicker()
+        if(!actionId || !path) return
         await invoke('run_action', { actionId, path })
     }
 
-    closeFolderTypePicker()
+    if(!target.closest('#folder-type-picker')) closeFolderTypePicker()
+    if(!target.closest('#folder-apps-picker')) closeAppPicker()
 })
 
 async function loadFolders() {
     const folders = await invoke<Folder[]>('get_folders')
     const list = document.getElementById('results')!
 
+    currentFolders = folders
+
     let html = folders.map(folder => {
         const type = getFolderType(folder.folder_type) ?? getFolderType('unknown')
         const icon = type?.icon || 'unknown.svg'
         const label = type?.label || 'unknown'
+        const actions = renderAppActions(folder)
         return `
         <div class="flex flex-row bg-theme-100 rounded-xl border border-theme-600 items-center justify-between p-2">
             <div class="flex flex-row">
@@ -113,9 +146,9 @@ async function loadFolders() {
                 </div>
             </div>
             <div class="flex flex-row gap-2 items-center">
-                <img src="vscode.svg" alt="VSCode Logo" width="32" data-action="open_vscode" data-path="${folder.path}" class="cursor-pointer" />
-                <img src="explorer.svg" alt="Explorer Logo" width="32" data-action="open_explorer" data-path="${folder.path}" class="cursor-pointer" />
+                ${actions}
                 <img src="remove.svg" alt="Remove Folder" width="32" class="remove-folder cursor-pointer" data-id="${folder.id}" />
+                <img src="settings.svg" alt="Open Settings" width="32" class="open-settings cursor-pointer" data-id="${folder.id}" />
             </div>
         </div>
         `
@@ -123,6 +156,22 @@ async function loadFolders() {
 
     list.innerHTML = html
     if(activeFilter) applyFilter(activeFilter)
+}
+
+function renderAppActions(folder: Folder) {
+    const available = getApps()
+    const defaultApps = available.filter(app => app.default)
+    const selectedIds = (folder.apps && folder.apps.length) ? folder.apps : defaultApps.map(app => app.id)
+    const selectedApps = selectedIds
+        .map(id => getApp(id))
+        .filter((app): app is NonNullable<ReturnType<typeof getApp>> => Boolean(app))
+
+    if(!selectedApps.length) return '<span class="text-sm text-theme-600">No apps</span>'
+
+    return selectedApps.map(app => {
+        const iconPath = app.icon.includes('/') ? app.icon : `apps/${app.icon}`
+        return `<img src="${iconPath}" alt="${app.name}" width="28" data-action="${app.id}" data-path="${folder.path}" class="cursor-pointer app-action rounded" title="Open in ${app.name}" />`
+    }).join('')
 }
 
 const filterContainer = document.getElementById('filter-type')
@@ -136,14 +185,15 @@ if(filterContainer) {
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
             const picker = document.getElementById('folder-type-picker')!
             const pickerHeight = picker.offsetHeight
-            const spaceBelow = window.innerHeight - rect.bottom
-            if(spaceBelow < pickerHeight + 5) picker.style.top = `${rect.top + window.scrollY - pickerHeight - 5}px`
-            else picker.style.top = `${rect.bottom + window.scrollY + 5}px`
-
             const pickerWidth = picker.offsetWidth
-            let left = rect.left + window.scrollX
+            
+            const spaceBelow = window.innerHeight - rect.bottom
+            if(spaceBelow < pickerHeight + 5) picker.style.top = `${rect.top - pickerHeight - 5}px`
+            else picker.style.top = `${rect.bottom + 5}px`
+
+            let left = rect.left
             if(rect.left + pickerWidth > window.innerWidth - 5) {
-                left = Math.max(5, rect.right + window.scrollX - pickerWidth)
+                left = Math.max(5, rect.right - pickerWidth)
             }
             picker.style.left = `${left}px`
             e.stopPropagation()
@@ -189,6 +239,58 @@ function closeFolderTypePicker() {
     picker.innerHTML = ''
 }
 
+function renderAppPicker(folder: Folder, anchor: HTMLElement) {
+    const picker = document.getElementById('folder-apps-picker')!
+    const apps = getApps()
+    const defaultApps = apps.filter(a => a.default)
+    const selected = new Set((folder.apps && folder.apps.length ? folder.apps : defaultApps.map(a => a.id)))
+
+    picker.innerHTML = `
+        <div class="bg-theme-100 border border-theme-600 rounded-xl p-3 shadow-xl w-72">
+            <div class="flex items-center justify-between mb-2">
+                <div class="font-semibold text-lg">Apps for ${folder.name}</div>
+                <button class="close-app-picker cursor-pointer text-sm px-2 rounded hover:bg-theme-200">✕</button>
+            </div>
+            <div class="flex flex-col gap-2 max-h-64 overflow-auto pr-1">
+                ${apps.map(app => {
+                    const iconPath = app.icon.includes('/') ? app.icon : `apps/${app.icon}`
+                    const checked = selected.has(app.id) ? 'checked' : ''
+                    return `<label class="flex items-center gap-2 text-sm">
+                        <input type="checkbox" data-app-id="${app.id}" ${checked} />
+                        <img src="${iconPath}" alt="${app.name}" width="20" />
+                        <span>${app.name}</span>
+                    </label>`
+                }).join('')}
+            </div>
+            <div class="flex justify-end mt-3 gap-2">
+                <button class="save-apps w-full bg-theme-600 text-white px-3 py-1 rounded-md" data-folder-id="${folder.id}">Save</button>
+            </div>
+        </div>
+    `
+
+    picker.classList.remove('hidden')
+
+    const rect = anchor.getBoundingClientRect()
+    const pickerHeight = picker.offsetHeight
+    const pickerWidth = picker.offsetWidth
+    
+    const spaceBelow = window.innerHeight - rect.bottom
+    if(spaceBelow < pickerHeight + 5) picker.style.top = `${rect.top - pickerHeight - 5}px`
+    else picker.style.top = `${rect.bottom + 5}px`
+
+    let left = rect.left
+    if(rect.left + pickerWidth > window.innerWidth - 5) {
+        left = Math.max(5, rect.right - pickerWidth)
+    }
+    picker.style.left = `${left}px`
+}
+
+function closeAppPicker() {
+    const picker = document.getElementById('folder-apps-picker')!
+    picker.classList.add('hidden')
+    picker.innerHTML = ''
+}
+
 document.getElementById('add-source')!.onclick = async () => {
     const pathInput = document.getElementById('source-path') as HTMLInputElement
     const path = pathInput.value.trim()
@@ -227,7 +329,7 @@ document.getElementById('search')!.oninput = (e) => {
 
 document.getElementById('refresh')!.onclick = loadFolders
 async function main() {
-    await loadFolderTypes()
+    await Promise.all([loadFolderTypes(), loadApps()])
     await loadFolders()
 }
 main()

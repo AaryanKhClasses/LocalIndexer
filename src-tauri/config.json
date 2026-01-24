@@ -62,6 +62,16 @@
             }
         },
         {
+            "id": "csharp",
+            "label": "C#",
+            "icon": "csharp.svg",
+            "detect": {
+                "any": [
+                    "*.csproj", "*.sln", "*.slnx", "*.cs"
+                ]
+            }
+        },
+        {
             "id": "chrome",
             "label": "Chrome Extension",
             "icon": "chrome.svg",
@@ -119,6 +129,43 @@
             "label": "Unknown",
             "icon": "unknown.svg",
             "detect": {}
+        }
+    ],
+    "apps": [
+        {
+            "id": "vscode-insiders",
+            "name": "VSCode - Insiders",
+            "icon": "vscode.svg",
+            "command": "code-insiders {path}",
+            "default": true
+        },
+        {
+            "id": "explorer",
+            "name": "File Explorer",
+            "icon": "explorer.svg",
+            "command": "explorer {path}",
+            "default": true
+        },
+        {
+            "id": "intellij",
+            "name": "IntelliJ IDEA",
+            "icon": "intellij.svg",
+            "command": "idea {path}",
+            "default": false
+        },
+        {
+            "id": "android-studio",
+            "name": "Android Studio",
+            "icon": "android-studio.svg",
+            "command": "'C:\\Program Files\\Android\\Android Studio\\bin\\studio64.exe' {path}",
+            "default": false
+        },
+        {
+            "id": "visual-studio",
+            "name": "Visual Studio",
+            "icon": "visual-studio.svg",
+            "command": "devenv {path}",
+            "default": false
         }
     ]
 }
